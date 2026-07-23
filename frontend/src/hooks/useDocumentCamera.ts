@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { DocumentCameraStatus } from '../types/document'
+import { calculateCoverCrop } from '../utils/coverCrop'
 
 const DOCUMENT_FILE_NAME = 'document-capture.jpg'
 const JPEG_QUALITY = 0.94
+const DOCUMENT_FRAME_WIDTH = 158
+const DOCUMENT_FRAME_HEIGHT = 100
 
 function getCameraErrorStatus(error: unknown): DocumentCameraStatus {
   if (!(error instanceof DOMException)) return 'error'
@@ -86,13 +89,33 @@ export function useDocumentCamera() {
 
     try {
       setCameraStatus('capturing')
+      const crop = calculateCoverCrop(
+        videoElement.videoWidth,
+        videoElement.videoHeight,
+        videoElement.clientWidth || DOCUMENT_FRAME_WIDTH,
+        videoElement.clientHeight || DOCUMENT_FRAME_HEIGHT,
+      )
+      if (crop.width === 0 || crop.height === 0) {
+        throw new Error('The visible document area could not be calculated.')
+      }
+
       const canvas = document.createElement('canvas')
-      canvas.width = videoElement.videoWidth
-      canvas.height = videoElement.videoHeight
+      canvas.width = Math.round(crop.width)
+      canvas.height = Math.round(crop.height)
       const context = canvas.getContext('2d')
       if (!context) throw new Error('Canvas 2D is unavailable.')
 
-      context.drawImage(videoElement, 0, 0, canvas.width, canvas.height)
+      context.drawImage(
+        videoElement,
+        crop.x,
+        crop.y,
+        crop.width,
+        crop.height,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      )
       const imageBlob = await canvasToJpeg(canvas)
       stopCamera()
       setCameraStatus('idle')

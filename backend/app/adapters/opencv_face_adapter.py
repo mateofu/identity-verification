@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from dataclasses import dataclass
 from threading import Lock
 from typing import cast
@@ -109,7 +110,8 @@ class OpenCvFaceAdapter:
         )
 
     def _find_document_face(self, image: NDArray[np.uint8]) -> DetectedFaceCandidate:
-        candidates: list[DetectedFaceCandidate] = []
+        best_candidate: DetectedFaceCandidate | None = None
+        best_priority = float("-inf")
 
         for image_variant in self._create_document_variants(image):
             detected_faces = self._detect_faces(
@@ -122,27 +124,25 @@ class OpenCvFaceAdapter:
                 detected_faces,
                 key=lambda face: self._document_face_priority(face, image_variant),
             )
-            candidates.append(
-                DetectedFaceCandidate(
+            candidate_priority = self._document_face_priority(
+                primary_face, image_variant
+            )
+            if candidate_priority > best_priority:
+                best_candidate = DetectedFaceCandidate(
                     image=image_variant,
                     face=primary_face,
                     face_count=len(detected_faces),
                 )
-            )
+                best_priority = candidate_priority
 
-        if not candidates:
+        if best_candidate is None:
             raise FaceProcessingError(
                 ErrorCode.FACE_NOT_FOUND,
                 "No face was detected in the document image.",
                 field="document",
             )
 
-        return max(
-            candidates,
-            key=lambda candidate: self._document_face_priority(
-                candidate.face, candidate.image
-            ),
-        )
+        return best_candidate
 
     def _detect_faces(
         self,
@@ -200,20 +200,25 @@ class OpenCvFaceAdapter:
     @staticmethod
     def _create_document_variants(
         image: NDArray[np.uint8],
-    ) -> tuple[NDArray[np.uint8], ...]:
+    ) -> Iterator[NDArray[np.uint8]]:
+        yield image
+        yield cast(NDArray[np.uint8], cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE))
+        yield cast(NDArray[np.uint8], cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE))
+        yield cast(NDArray[np.uint8], cv2.rotate(image, cv2.ROTATE_180))
+
         enhanced_image = OpenCvFaceAdapter._enhance_document_contrast(image)
-        return cast(
-            tuple[NDArray[np.uint8], ...],
-            (
-                image,
-                enhanced_image,
-                cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE),
-                cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE),
-                cv2.rotate(image, cv2.ROTATE_180),
-                cv2.rotate(enhanced_image, cv2.ROTATE_90_CLOCKWISE),
-                cv2.rotate(enhanced_image, cv2.ROTATE_90_COUNTERCLOCKWISE),
-                cv2.rotate(enhanced_image, cv2.ROTATE_180),
-            ),
+        yield enhanced_image
+        yield cast(
+            NDArray[np.uint8],
+            cv2.rotate(enhanced_image, cv2.ROTATE_90_CLOCKWISE),
+        )
+        yield cast(
+            NDArray[np.uint8],
+            cv2.rotate(enhanced_image, cv2.ROTATE_90_COUNTERCLOCKWISE),
+        )
+        yield cast(
+            NDArray[np.uint8],
+            cv2.rotate(enhanced_image, cv2.ROTATE_180),
         )
 
     @staticmethod

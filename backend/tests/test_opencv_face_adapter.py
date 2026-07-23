@@ -28,7 +28,7 @@ def create_faces(*faces: np.ndarray) -> np.ndarray:
 def test_creates_contrast_and_rotation_variants() -> None:
     image = np.zeros((100, 160, 3), dtype=np.uint8)
 
-    variants = OpenCvFaceAdapter._create_document_variants(image)
+    variants = list(OpenCvFaceAdapter._create_document_variants(image))
 
     assert len(variants) == 8
     assert variants[0].shape == (100, 160, 3)
