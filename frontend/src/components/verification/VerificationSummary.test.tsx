@@ -86,13 +86,17 @@ describe('VerificationSummary', () => {
     expect(compareButton.hasAttribute('disabled')).toBe(true)
   })
 
-  it('shows a spinner and prevents duplicate submissions while comparing', () => {
+  it('shows a spinner and blocks every action while comparing', () => {
     renderSummary({ requestStatus: 'submitting' })
 
     const compareButton = screen.getByRole('button', { name: 'Comparando rostros…' })
     expect(compareButton.hasAttribute('disabled')).toBe(true)
     expect(compareButton.getAttribute('aria-busy')).toBe('true')
     expect(compareButton.querySelector('.button__spinner')).toBeTruthy()
+
+    for (const buttonName of ['Cambiar documento', 'Cambiar rostro', 'Reiniciar proceso']) {
+      expect(screen.getByRole('button', { name: buttonName }).hasAttribute('disabled')).toBe(true)
+    }
   })
 
   it('presents an inconclusive result and its quality warning', () => {

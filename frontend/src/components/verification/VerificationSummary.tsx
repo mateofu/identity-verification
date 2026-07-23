@@ -84,6 +84,7 @@ export function VerificationSummary({
   const documentPreviewUrl = useObjectUrl(documentFile)
   const { requestStatus, verificationResult, verificationFailure, submitVerification } =
     useVerification()
+  const isSubmitting = requestStatus === 'submitting'
 
   return (
     <section className="capture-panel" aria-labelledby="summary-heading">
@@ -139,7 +140,12 @@ export function VerificationSummary({
 
       <div className="camera-actions">
         {verificationResult && (
-          <button className="button button--primary" type="button" onClick={onRestart}>
+          <button
+            className="button button--primary"
+            type="button"
+            disabled={isSubmitting}
+            onClick={onRestart}
+          >
             Nueva verificación
           </button>
         )}
@@ -147,39 +153,52 @@ export function VerificationSummary({
           <button
             className="button button--primary"
             type="button"
-            disabled={requestStatus === 'submitting' || !isServiceReady}
-            aria-busy={requestStatus === 'submitting'}
+            disabled={isSubmitting || !isServiceReady}
+            aria-busy={isSubmitting}
             onClick={() => void submitVerification(selfieFile, documentFile)}
           >
-            {requestStatus === 'submitting' && (
-              <span className="button__spinner" aria-hidden="true" />
-            )}
+            {isSubmitting && <span className="button__spinner" aria-hidden="true" />}
             {!isServiceReady
               ? 'Esperando servicio…'
-              : requestStatus === 'submitting'
+              : isSubmitting
                 ? 'Comparando rostros…'
                 : requestStatus === 'error'
                   ? 'Intentar nuevamente'
                   : 'Comparar rostros'}
           </button>
         )}
-        <button className="button button--secondary" type="button" onClick={onBack}>
+        <button
+          className="button button--secondary"
+          type="button"
+          disabled={isSubmitting}
+          onClick={onBack}
+        >
           Cambiar documento
         </button>
-        <button className="button button--secondary" type="button" onClick={onChangeSelfie}>
+        <button
+          className="button button--secondary"
+          type="button"
+          disabled={isSubmitting}
+          onClick={onChangeSelfie}
+        >
           Cambiar rostro
         </button>
         {verificationResult ? (
           <button
             className="button button--ghost"
             type="button"
-            disabled={!isServiceReady}
+            disabled={isSubmitting || !isServiceReady}
             onClick={() => void submitVerification(selfieFile, documentFile)}
           >
             Comparar nuevamente
           </button>
         ) : (
-          <button className="button button--ghost" type="button" onClick={onRestart}>
+          <button
+            className="button button--ghost"
+            type="button"
+            disabled={isSubmitting}
+            onClick={onRestart}
+          >
             Reiniciar proceso
           </button>
         )}
