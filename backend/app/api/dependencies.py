@@ -12,6 +12,7 @@ def get_verification_service() -> VerificationService:
         ImageValidationLimits(
             maximum_size_bytes=settings.maximum_image_size_bytes,
             maximum_pixels=settings.maximum_image_pixels,
+            maximum_processing_pixels=settings.maximum_processing_image_pixels,
         )
     )
     face_adapter = OpenCvFaceAdapter(

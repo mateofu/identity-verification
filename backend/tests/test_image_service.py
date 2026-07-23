@@ -65,3 +65,20 @@ def test_rejects_excessive_dimensions(image_service: ImageService) -> None:
 
     assert captured_error.value.code == ErrorCode.INVALID_IMAGE
     assert captured_error.value.field == "document"
+
+
+def test_downscales_large_valid_image_for_processing() -> None:
+    image_service = ImageService(
+        ImageValidationLimits(
+            maximum_size_bytes=2048,
+            maximum_pixels=200,
+            maximum_processing_pixels=50,
+        )
+    )
+
+    decoded_image = image_service.decode(
+        create_jpeg(width=10, height=10), "image/jpeg", "document"
+    )
+
+    assert decoded_image.shape == (7, 7, 3)
+    assert decoded_image.shape[0] * decoded_image.shape[1] <= 50

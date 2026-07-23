@@ -21,6 +21,9 @@ class Settings:
         os.getenv("MAXIMUM_IMAGE_SIZE_BYTES", str(10 * 1024 * 1024))
     )
     maximum_image_pixels: int = int(os.getenv("MAXIMUM_IMAGE_PIXELS", "20000000"))
+    maximum_processing_image_pixels: int = int(
+        os.getenv("MAXIMUM_PROCESSING_IMAGE_PIXELS", "2000000")
+    )
     face_match_threshold: float = float(os.getenv("FACE_MATCH_THRESHOLD", "0.363"))
     minimum_conclusive_face_confidence: float = float(
         os.getenv("MINIMUM_CONCLUSIVE_FACE_CONFIDENCE", "0.65")

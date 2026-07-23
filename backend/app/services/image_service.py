@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from typing import cast
 
@@ -14,6 +15,7 @@ SUPPORTED_IMAGE_MEDIA_TYPES = frozenset({"image/jpeg", "image/png", "image/webp"
 class ImageValidationLimits:
     maximum_size_bytes: int
     maximum_pixels: int
+    maximum_processing_pixels: int = 2_000_000
 
 
 class ImageService:
@@ -62,4 +64,22 @@ class ImageService:
                 field=field_name,
             )
 
-        return cast(NDArray[np.uint8], decoded_image)
+        return self._resize_for_processing(cast(NDArray[np.uint8], decoded_image))
+
+    def _resize_for_processing(self, image: NDArray[np.uint8]) -> NDArray[np.uint8]:
+        height, width = image.shape[:2]
+        pixel_count = height * width
+        if pixel_count <= self._limits.maximum_processing_pixels:
+            return image
+
+        scale = math.sqrt(self._limits.maximum_processing_pixels / pixel_count)
+        target_width = max(1, int(width * scale))
+        target_height = max(1, int(height * scale))
+        return cast(
+            NDArray[np.uint8],
+            cv2.resize(
+                image,
+                (target_width, target_height),
+                interpolation=cv2.INTER_AREA,
+            ),
+        )

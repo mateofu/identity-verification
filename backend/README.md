@@ -6,6 +6,8 @@ The service processes images in memory and does not persist biometric data. It r
 on the port supplied through `PORT`, defaulting to `8000` for local execution.
 Configure `ALLOWED_ORIGINS` with the exact public URL of the Vercel frontend.
 Separate multiple exact origins with commas.
+`MAXIMUM_PROCESSING_IMAGE_PIXELS` limits the resolution used by OpenCV and
+defaults to 2 megapixels to keep inference memory bounded on small instances.
 
 Public endpoints:
 
