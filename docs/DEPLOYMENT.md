@@ -30,7 +30,12 @@ GitHub Actions workflow succeeds.
    ALLOWED_ORIGINS=https://YOUR-PROJECT.vercel.app
    MAXIMUM_IMAGE_SIZE_BYTES=10485760
    MAXIMUM_IMAGE_PIXELS=6000000
+   MAXIMUM_PROCESSING_IMAGE_PIXELS=2000000
    ```
+
+   `MAXIMUM_IMAGE_PIXELS` limits the dimensions accepted by the API.
+   `MAXIMUM_PROCESSING_IMAGE_PIXELS` proportionally reduces the resolution
+   used by OpenCV to keep inference memory bounded.
 
 4. Deploy and verify:
 
@@ -70,11 +75,12 @@ Use a desktop and, if available, a mobile device:
 
 1. Open the Vercel URL in a private browser window.
 2. Wait until the header reports **Servicio disponible**.
-3. Grant camera permission and capture a selfie.
-4. Capture a document with the rear camera or upload an authorized test image.
-5. Confirm both previews and run the comparison.
-6. Exercise `match`, `no_match`, `inconclusive`, permission denial and retry paths.
-7. Test the cold-start messaging after the backend has been idle.
+3. Select **Comenzar verificación** on the welcome screen.
+4. Grant camera permission and capture a selfie.
+5. Capture a document with the rear camera or upload an authorized test image.
+6. Confirm both previews and run the comparison.
+7. Exercise `match`, `no_match`, `inconclusive`, permission denial and retry paths.
+8. Test the cold-start messaging after the backend has been idle.
 
 ## 5. Demo disclosure
 

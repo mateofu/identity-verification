@@ -2,8 +2,17 @@
 
 Aplicación web para capturar un rostro en vivo, adquirir la fotografía de un documento y comparar ambos rostros localmente mediante modelos de visión.
 
+## Demo en producción
+
+https://identity-verification-sooty.vercel.app
+
+> La demostración utiliza infraestructura gratuita. Si el servicio de IA estaba
+> inactivo, espera hasta que el estado cambie a **Servicio disponible** antes de
+> comparar las imágenes.
+
 ## Funcionalidades
 
+- Pantalla inicial con explicación del proceso y tratamiento temporal de las imágenes.
 - Acceso real a la cámara frontal mediante `MediaDevices.getUserMedia`.
 - Ráfaga automática de tres frames y selección de la toma con mejor exposición, contraste y nitidez.
 - Rechazo temprano de capturas claramente deficientes.
@@ -44,12 +53,13 @@ docker compose down
 
 ## Flujo de demostración
 
-1. Activa la cámara y concede el permiso solicitado por el navegador.
-2. Mantén un solo rostro centrado y con iluminación frontal.
-3. Pulsa **Capturar rostro**; el navegador seleccionará la mejor de tres tomas.
-4. Fotografía o carga el lado del documento que contiene el retrato.
-5. Confirma visualmente las dos imágenes en el resumen.
-6. Pulsa **Comparar rostros** y revisa la decisión y la puntuación.
+1. Pulsa **Comenzar verificación** en la pantalla de bienvenida.
+2. Activa la cámara y concede el permiso solicitado por el navegador.
+3. Mantén un solo rostro centrado y con iluminación frontal.
+4. Pulsa **Capturar rostro**; el navegador seleccionará la mejor de tres tomas.
+5. Fotografía o carga el lado del documento que contiene el retrato.
+6. Confirma visualmente las dos imágenes en el resumen.
+7. Pulsa **Comparar rostros** y revisa la decisión y la puntuación.
 
 `localhost` permite usar la cámara durante el desarrollo. Un despliegue remoto necesita HTTPS.
 

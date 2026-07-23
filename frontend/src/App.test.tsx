@@ -55,6 +55,8 @@ describe('App verification flow', () => {
     const user = userEvent.setup()
     render(<App />)
 
+    expect(screen.getByRole('heading', { name: 'Antes de comenzar' })).toBeTruthy()
+    await user.click(screen.getByRole('button', { name: 'Comenzar verificación' }))
     await user.click(screen.getByRole('button', { name: 'Completar rostro' }))
     await user.click(screen.getByRole('button', { name: 'Completar documento' }))
     expect(screen.getByText('Resumen con document.jpg')).toBeTruthy()

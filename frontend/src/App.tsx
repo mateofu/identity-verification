@@ -2,17 +2,18 @@ import { useState } from 'react'
 
 import { CameraCapture } from './components/camera/CameraCapture'
 import { DocumentCapture } from './components/document/DocumentCapture'
+import { Welcome } from './components/onboarding/Welcome'
 import { ThemeToggle } from './components/theme/ThemeToggle'
 import { VerificationSummary } from './components/verification/VerificationSummary'
 import { useApiHealth } from './hooks/useApiHealth'
 import { useTheme } from './hooks/useTheme'
 
-type VerificationStep = 'selfie' | 'document' | 'summary'
+type VerificationStep = 'welcome' | 'selfie' | 'document' | 'summary'
 
 export default function App() {
   const connectionStatus = useApiHealth()
   const { theme, toggleTheme } = useTheme()
-  const [currentStep, setCurrentStep] = useState<VerificationStep>('selfie')
+  const [currentStep, setCurrentStep] = useState<VerificationStep>('welcome')
   const [selfieFile, setSelfieFile] = useState<File | null>(null)
   const [documentFile, setDocumentFile] = useState<File | null>(null)
 
@@ -72,6 +73,7 @@ export default function App() {
           </div>
         )}
 
+        {currentStep === 'welcome' && <Welcome onStart={() => setCurrentStep('selfie')} />}
         {currentStep === 'selfie' && <CameraCapture onContinue={handleSelfieCompleted} />}
         {currentStep === 'document' && (
           <DocumentCapture
