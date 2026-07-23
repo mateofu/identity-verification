@@ -1,32 +1,47 @@
 # Free public demo deployment
 
-This deployment uses Vercel Hobby for the Vite frontend and a public Hugging Face Docker Space on free CPU hardware for the FastAPI backend.
+This deployment uses Vercel Hobby for the Vite frontend and a Render Free Web
+Service for the FastAPI backend.
 
-## 1. Publish the source repository
+## 1. Publish and validate the repository
 
-Before pushing, verify that `.env`, `node_modules`, generated builds, personal photographs and identity documents are not tracked. Git operations and repository creation are intentionally left to the repository owner.
+Before pushing, verify that `.env`, `node_modules`, generated builds, personal
+photographs and identity documents are not tracked. Confirm that the `Quality`
+GitHub Actions workflow succeeds.
 
-After the push, confirm that the `Quality` GitHub Actions workflow succeeds.
+## 2. Deploy the backend on Render
 
-## 2. Deploy the backend to a Docker Space
+1. Create a **Web Service** connected to the GitHub repository.
+2. Use these settings:
 
-1. Create a public Hugging Face Space and select **Docker** with free CPU hardware.
-2. Publish the contents of the repository's `backend` directory at the root of the Space repository. The included `README.md` declares `sdk: docker` and `app_port: 8000`.
-3. In the Space settings, add this variable using the final Vercel project URL:
+   ```text
+   Name: identity-verification-api
+   Branch: main
+   Language: Docker
+   Root Directory: backend
+   Dockerfile Path: ./Dockerfile
+   Instance Type: Free
+   Health Check Path: /api/health
+   ```
+
+3. Add these environment variables:
 
    ```text
    ALLOWED_ORIGINS=https://YOUR-PROJECT.vercel.app
+   MAXIMUM_IMAGE_SIZE_BYTES=10485760
+   MAXIMUM_IMAGE_PIXELS=6000000
    ```
 
-4. Wait for the Space to report **Running**.
-5. Verify these URLs:
+4. Deploy and verify:
 
    ```text
-   https://YOUR-SPACE.hf.space/api/health
-   https://YOUR-SPACE.hf.space/api/docs
+   https://YOUR-RENDER-SERVICE.onrender.com/api/health
+   https://YOUR-RENDER-SERVICE.onrender.com/api/docs
    ```
 
-The free Space sleeps after a period of inactivity. A new visitor wakes it. The frontend retries the health request and disables facial comparison until the API is ready.
+The free service sleeps after a period of inactivity. A new request wakes it.
+The frontend retries the health request and disables facial comparison until
+the API is ready.
 
 ## 3. Deploy the frontend to Vercel
 
@@ -43,11 +58,11 @@ The free Space sleeps after a period of inactivity. A new visitor wakes it. The 
 4. Add this environment variable for Production and Preview:
 
    ```text
-   VITE_API_URL=https://YOUR-SPACE.hf.space
+   VITE_API_URL=https://YOUR-RENDER-SERVICE.onrender.com
    ```
 
 5. Deploy and copy the final `https://YOUR-PROJECT.vercel.app` URL.
-6. If the actual URL differs from `ALLOWED_ORIGINS`, update that Space variable. The backend restarts automatically. Multiple exact origins can be separated with commas.
+6. Replace `ALLOWED_ORIGINS` in Render with that exact URL and redeploy.
 
 ## 4. Production smoke test
 
@@ -59,12 +74,15 @@ Use a desktop and, if available, a mobile device:
 4. Capture a document with the rear camera or upload an authorized test image.
 5. Confirm both previews and run the comparison.
 6. Exercise `match`, `no_match`, `inconclusive`, permission denial and retry paths.
-7. Leave the application unused long enough to test the cold-start messaging separately.
+7. Test the cold-start messaging after the backend has been idle.
 
 ## 5. Demo disclosure
 
 Include this note with the public URL:
 
-> This technical demo uses free infrastructure. If the AI service was inactive, wait until the status changes to "Servicio disponible" before comparing images.
+> This technical demo uses free infrastructure. If the AI service was inactive,
+> wait until the status changes to "Servicio disponible" before comparing images.
 
-Do not use real identity documents for public demonstrations. The application does not persist images, but uploaded content is still processed by the hosting provider.
+Do not use real identity documents for public demonstrations. The application
+does not persist images, but uploaded content is still processed by the hosting
+provider.
