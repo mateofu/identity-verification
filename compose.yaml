@@ -1,0 +1,49 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ./backend
+      target: development
+    ports:
+      - "8000:8000"
+    environment:
+      MAXIMUM_IMAGE_SIZE_BYTES: ${MAXIMUM_IMAGE_SIZE_BYTES:-10485760}
+      MAXIMUM_IMAGE_PIXELS: ${MAXIMUM_IMAGE_PIXELS:-20000000}
+      FACE_MATCH_THRESHOLD: ${FACE_MATCH_THRESHOLD:-0.363}
+      MINIMUM_CONCLUSIVE_FACE_CONFIDENCE: ${MINIMUM_CONCLUSIVE_FACE_CONFIDENCE:-0.65}
+      MINIMUM_SELFIE_FACE_RELATIVE_AREA: ${MINIMUM_SELFIE_FACE_RELATIVE_AREA:-0.035}
+      MINIMUM_DOCUMENT_FACE_RELATIVE_AREA: ${MINIMUM_DOCUMENT_FACE_RELATIVE_AREA:-0.003}
+      MINIMUM_SELFIE_FACE_DIMENSION_PIXELS: ${MINIMUM_SELFIE_FACE_DIMENSION_PIXELS:-100}
+      MINIMUM_DOCUMENT_FACE_DIMENSION_PIXELS: ${MINIMUM_DOCUMENT_FACE_DIMENSION_PIXELS:-80}
+      MINIMUM_FACE_SHARPNESS: ${MINIMUM_FACE_SHARPNESS:-25}
+      MINIMUM_FACE_LUMINANCE: ${MINIMUM_FACE_LUMINANCE:-45}
+      MAXIMUM_FACE_LUMINANCE: ${MAXIMUM_FACE_LUMINANCE:-215}
+      FACE_DETECTION_SCORE_THRESHOLD: ${FACE_DETECTION_SCORE_THRESHOLD:-0.75}
+      DOCUMENT_FACE_DETECTION_SCORE_THRESHOLD: ${DOCUMENT_FACE_DETECTION_SCORE_THRESHOLD:-0.5}
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/tests:/app/tests
+      - ./backend/tools:/app/tools
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  frontend_node_modules:
