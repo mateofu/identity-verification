@@ -1,20 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { DocumentImageError, SelectedDocumentImage } from '../types/document'
+import { prepareImageForUpload } from '../utils/imageResize'
 
 const MAXIMUM_DOCUMENT_SIZE_BYTES = 10 * 1024 * 1024
+const MAXIMUM_DOCUMENT_PIXELS = 6_000_000
 const SUPPORTED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
-
-async function isDecodableImage(imageFile: File): Promise<boolean> {
-  try {
-    const imageBitmap = await createImageBitmap(imageFile)
-    const hasValidDimensions = imageBitmap.width > 0 && imageBitmap.height > 0
-    imageBitmap.close()
-    return hasValidDimensions
-  } catch {
-    return false
-  }
-}
 
 export function useDocumentImage() {
   const previewUrlRef = useRef<string | null>(null)
@@ -45,14 +36,17 @@ export function useDocumentImage() {
         return
       }
 
-      if (!(await isDecodableImage(imageFile))) {
+      let preparedImage: File
+      try {
+        preparedImage = await prepareImageForUpload(imageFile, MAXIMUM_DOCUMENT_PIXELS)
+      } catch {
         setValidationError('invalid-image')
         return
       }
 
-      const previewUrl = URL.createObjectURL(imageFile)
+      const previewUrl = URL.createObjectURL(preparedImage)
       previewUrlRef.current = previewUrl
-      setSelectedImage({ file: imageFile, previewUrl })
+      setSelectedImage({ file: preparedImage, previewUrl })
     },
     [clearDocumentImage],
   )

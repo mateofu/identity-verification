@@ -259,6 +259,10 @@ p {
 }
 
 .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   min-height: 46px;
   padding: 0 22px;
   border: 1px solid transparent;
@@ -288,6 +292,25 @@ p {
 }
 .button--primary:hover:not(:disabled) {
   background: #7ceecf;
+}
+.button__spinner {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border: 2px solid rgba(6, 37, 29, 0.3);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: button-spinner 700ms linear infinite;
+}
+@keyframes button-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .button__spinner {
+    animation-duration: 1400ms;
+  }
 }
 .button--secondary {
   border-color: rgba(148, 163, 184, 0.28);
@@ -338,12 +361,12 @@ p {
 .document-frame img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
 }
 
 .document-frame--preview {
-  aspect-ratio: auto;
-  overflow: visible;
+  border-style: solid;
 }
 
 .document-frame video {
@@ -677,6 +700,14 @@ html[data-theme="light"] .quality-warnings {
 
   .file-summary--preview img {
     height: 160px;
+  }
+
+  .camera-actions {
+    flex-direction: column;
+  }
+
+  .camera-actions .button {
+    width: 100%;
   }
 }
 

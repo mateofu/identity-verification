@@ -86,8 +86,17 @@ describe('VerificationSummary', () => {
     expect(compareButton.hasAttribute('disabled')).toBe(true)
   })
 
+  it('shows a spinner and prevents duplicate submissions while comparing', () => {
+    renderSummary({ requestStatus: 'submitting' })
+
+    const compareButton = screen.getByRole('button', { name: 'Comparando rostros…' })
+    expect(compareButton.hasAttribute('disabled')).toBe(true)
+    expect(compareButton.getAttribute('aria-busy')).toBe('true')
+    expect(compareButton.querySelector('.button__spinner')).toBeTruthy()
+  })
+
   it('presents an inconclusive result and its quality warning', () => {
-    renderSummary({
+    const { onRestart } = renderSummary({
       requestStatus: 'success',
       verificationResult: {
         matched: false,
@@ -106,5 +115,12 @@ describe('VerificationSummary', () => {
     expect(screen.getByText('Resultado no concluyente')).toBeTruthy()
     expect(screen.getByText('48.20%')).toBeTruthy()
     expect(screen.getByText(/documento tiene baja calidad o antigüedad/i)).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Comparar rostros' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Comparar nuevamente' })).toBeTruthy()
+
+    const newVerificationButton = screen.getByRole('button', { name: 'Nueva verificación' })
+    expect(newVerificationButton.classList.contains('button--primary')).toBe(true)
+    newVerificationButton.click()
+    expect(onRestart).toHaveBeenCalledOnce()
   })
 })

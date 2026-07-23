@@ -138,29 +138,51 @@ export function VerificationSummary({
       )}
 
       <div className="camera-actions">
-        <button
-          className="button button--primary"
-          type="button"
-          disabled={requestStatus === 'submitting' || !isServiceReady}
-          onClick={() => void submitVerification(selfieFile, documentFile)}
-        >
-          {!isServiceReady
-            ? 'Esperando servicio…'
-            : requestStatus === 'submitting'
-              ? 'Comparando rostros…'
-              : requestStatus === 'error'
-                ? 'Intentar nuevamente'
-                : 'Comparar rostros'}
-        </button>
+        {verificationResult && (
+          <button className="button button--primary" type="button" onClick={onRestart}>
+            Nueva verificación
+          </button>
+        )}
+        {!verificationResult && (
+          <button
+            className="button button--primary"
+            type="button"
+            disabled={requestStatus === 'submitting' || !isServiceReady}
+            aria-busy={requestStatus === 'submitting'}
+            onClick={() => void submitVerification(selfieFile, documentFile)}
+          >
+            {requestStatus === 'submitting' && (
+              <span className="button__spinner" aria-hidden="true" />
+            )}
+            {!isServiceReady
+              ? 'Esperando servicio…'
+              : requestStatus === 'submitting'
+                ? 'Comparando rostros…'
+                : requestStatus === 'error'
+                  ? 'Intentar nuevamente'
+                  : 'Comparar rostros'}
+          </button>
+        )}
         <button className="button button--secondary" type="button" onClick={onBack}>
           Cambiar documento
         </button>
         <button className="button button--secondary" type="button" onClick={onChangeSelfie}>
           Cambiar rostro
         </button>
-        <button className="button button--ghost" type="button" onClick={onRestart}>
-          Reiniciar proceso
-        </button>
+        {verificationResult ? (
+          <button
+            className="button button--ghost"
+            type="button"
+            disabled={!isServiceReady}
+            onClick={() => void submitVerification(selfieFile, documentFile)}
+          >
+            Comparar nuevamente
+          </button>
+        ) : (
+          <button className="button button--ghost" type="button" onClick={onRestart}>
+            Reiniciar proceso
+          </button>
+        )}
       </div>
     </section>
   )
