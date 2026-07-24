@@ -90,12 +90,14 @@ El umbral debe calibrarse con datos representativos y autorizados antes de utili
 - Los orígenes CORS son explícitos y configurables.
 - No deben incorporarse documentos reales al repositorio ni a los fixtures de prueba.
 
-## Limitaciones conocidas
+## Alcance actual y evolución
 
-- La captura en vivo cumple el alcance del reto, pero no implementa una prueba de vida certificada ni protección completa contra fotografías o pantallas.
-- El sistema no valida todavía campos, autenticidad física u OCR del documento.
-- Fotografías antiguas, pequeñas, borrosas o con reflejos pueden producir un resultado inconcluso.
-- La aplicación es una demostración técnica y no sustituye una solución KYC certificada ni una revisión humana.
+La solución cubre el alcance funcional del reto: captura facial en vivo, adquisición de la imagen del documento, análisis de calidad y comparación de rostros mediante modelos de visión.
+
+- Las imágenes y los vectores biométricos se procesan temporalmente en memoria y no se persisten.
+- Las condiciones de iluminación, nitidez, reflejos y antigüedad de la fotografía pueden generar un resultado inconcluso como medida de precaución.
+- Para evolucionar hacia un proceso KYC productivo se incorporarían prueba de vida, controles antifraude, validación documental y OCR.
+- Un entorno regulado requeriría además calibración con datos representativos, monitoreo, auditoría y revisión constante de un desarrollador.
 
 ## Documentación adicional
 
